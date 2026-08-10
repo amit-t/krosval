@@ -22,7 +22,7 @@ Follow-through: swept PID + map + tickets from working title `parallax` → `kro
 
 # T02 — Create the GitHub repo and import this map as issues
 
-**Labels:** `wayfinder:task` · **Blocked by:** — (T01 resolved) · **Blocks:** — · **Status:** IN PROGRESS
+**Labels:** `wayfinder:task` · **Blocked by:** — (T01 resolved) · **Blocks:** — · **Status:** ✅ RESOLVED 2026-08-10
 
 ## Question
 
@@ -37,6 +37,8 @@ Checklist:
 5. Retire the local-markdown tracker: note in the README that issues are now the tracker of record.
 
 Answer records: repo URL (done: github.com/amit-t/krosval), issue numbers per ticket, any import-script deviations.
+
+**Answer (2026-08-10):** Import complete. Map = [#1](https://github.com/amit-t/krosval/issues/1); tickets T01–T12 = issues #2–#13 in order (T01 → #2 closed as resolved, T02 → #3, … T12 → #13). Blockers recorded as comments on #9, #11, #12, #13. Deviations: first run died at `declare -A` (macOS ships bash 3.2, no associative arrays) after creating only the map issue; script rewritten to a tab-separated-file id→number map and made idempotent (existing issues matched by exact title and reused; blocker comments/closes applied only to newly created issues).
 
 ---
 

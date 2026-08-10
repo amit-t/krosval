@@ -6,9 +6,9 @@
 #   cd wayfinder
 #   ./import-to-github.sh [owner/repo]        # default: amit-t/krosval
 #
-# Requires: gh (authenticated), awk, sed, grep.
-# Idempotency note: this CREATES issues each run. Run once. If you re-run,
-# you'll get duplicates — delete the first batch first, or guard as you see fit.
+# Requires: gh (authenticated), awk, sed, grep. Works on macOS bash 3.2.
+# Idempotent: issues are matched by exact title; existing ones are reused,
+# blocker comments and closes are only applied to newly created issues.
 #
 set -euo pipefail
 
@@ -46,27 +46,54 @@ awk -v dir="$WORK" '
   { if (out) print > out }
 ' "$TICKETS"
 
+# Snapshot existing issues (any state) so re-runs reuse instead of duplicate.
+EXISTING="$WORK/existing.tsv"
+gh issue list --repo "$REPO" --state all --limit 500 \
+  --json number,title --jq '.[] | "\(.number)\t\(.title)"' > "$EXISTING"
+
+# find_issue TITLE -> issue number on stdout, empty if absent
+find_issue() { awk -F'\t' -v t="$1" '$2 == t { print $1; exit }' "$EXISTING"; }
+
+# Bash-3.2-safe id -> number map (no associative arrays on macOS bash).
+NUMMAP="$WORK/num.tsv"; : > "$NUMMAP"
+setnum() { printf '%s\t%s\n' "$1" "$2" >> "$NUMMAP"; }
+getnum() { awk -F'\t' -v k="$1" '$1 == k { print $2; exit }' "$NUMMAP"; }
+
 # ---------------------------------------------------------------------------
 # 3. Create the map issue
 # ---------------------------------------------------------------------------
-echo "==> Creating map issue"
-MAP_URL="$(gh issue create --repo "$REPO" --title "Wayfinder map — krosval" --label "wayfinder:map" --body-file "$MAP")"
-MAP_NUM="$(printf '%s\n' "$MAP_URL" | sed -E 's#.*/([0-9]+)$#\1#')"
-echo "    map = #$MAP_NUM"
+MAP_TITLE="Wayfinder map — krosval"
+MAP_NUM="$(find_issue "$MAP_TITLE")"
+if [ -n "$MAP_NUM" ]; then
+  echo "==> Map issue exists: #$MAP_NUM (skipping)"
+else
+  echo "==> Creating map issue"
+  MAP_URL="$(gh issue create --repo "$REPO" --title "$MAP_TITLE" --label "wayfinder:map" --body-file "$MAP")"
+  MAP_NUM="$(printf '%s\n' "$MAP_URL" | sed -E 's#.*/([0-9]+)$#\1#')"
+  echo "    map = #$MAP_NUM"
+fi
 
 # ---------------------------------------------------------------------------
-# 4. Create one issue per ticket (capture id -> number)
+# 4. Create one issue per ticket (capture id -> number; reuse existing)
 # ---------------------------------------------------------------------------
-declare -A NUM
+CREATED="$WORK/created.txt"; : > "$CREATED"
 echo "==> Creating ticket issues"
 for f in "$WORK"/T*.md; do
   id="$(basename "$f" .md)"
   title="$(sed -n '1s/^# //p' "$f")"
+  num="$(find_issue "$title")"
+  if [ -n "$num" ]; then
+    setnum "$id" "$num"
+    echo "    $id = #$num  (exists, skipped)"
+    continue
+  fi
   label="$(grep -m1 '\*\*Labels:\*\*' "$f" | grep -oE 'wayfinder:[a-z]+' | head -1)"
   [ -n "$label" ] || label="wayfinder:task"
   url="$(gh issue create --repo "$REPO" --title "$title" --label "$label" --body-file "$f")"
-  NUM[$id]="$(printf '%s\n' "$url" | sed -E 's#.*/([0-9]+)$#\1#')"
-  echo "    $id = #${NUM[$id]}  ($label)"
+  num="$(printf '%s\n' "$url" | sed -E 's#.*/([0-9]+)$#\1#')"
+  setnum "$id" "$num"
+  echo "$id" >> "$CREATED"
+  echo "    $id = #$num  ($label)"
 done
 
 # ---------------------------------------------------------------------------
@@ -78,7 +105,8 @@ done
 echo "==> Wiring blockers and closing resolved tickets"
 for f in "$WORK"/T*.md; do
   id="$(basename "$f" .md)"
-  num="${NUM[$id]}"
+  grep -qx "$id" "$CREATED" || continue   # only touch newly created issues
+  num="$(getnum "$id")"
 
   bline="$(grep -m1 '\*\*Blocked by:\*\*' "$f" || true)"
   bline="${bline#*Blocked by:\*\*}"     # drop everything up to the field
@@ -87,7 +115,7 @@ for f in "$WORK"/T*.md; do
   blk="$(printf '%s' "$bline" | grep -oE 'T[0-9]+' || true)"
   if [ -n "$blk" ]; then
     refs=""
-    for b in $blk; do [ -n "${NUM[$b]:-}" ] && refs="$refs #${NUM[$b]}"; done
+    for b in $blk; do bn="$(getnum "$b")"; [ -n "$bn" ] && refs="$refs #$bn"; done
     [ -n "$refs" ] && gh issue comment "$num" --repo "$REPO" --body "⛔ Blocked by:$refs — do not start until those close." >/dev/null
   fi
 
@@ -103,8 +131,8 @@ done
 # ---------------------------------------------------------------------------
 echo
 echo "==> Done. Map: #$MAP_NUM"
-for id in $(printf '%s\n' "${!NUM[@]}" | sort); do
-  echo "    $id -> https://github.com/$REPO/issues/${NUM[$id]}"
+sort "$NUMMAP" | while IFS=$'\t' read -r id n; do
+  echo "    $id -> https://github.com/$REPO/issues/$n"
 done
 echo
 echo "Next: open the map issue, and edit wayfinder/map.md to replace tickets.md links with these issue URLs."

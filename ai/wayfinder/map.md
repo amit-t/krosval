@@ -1,6 +1,6 @@
 # Wayfinder map — krosval
 
-**Label:** `wayfinder:map` · **Repo:** https://github.com/amit-t/krosval · **Tracker:** migrating from local-markdown to GitHub issues via [T02](tickets.md)
+**Label:** `wayfinder:map` · **Repo:** https://github.com/amit-t/krosval · **Tracker:** GitHub issues ([map = #1](https://github.com/amit-t/krosval/issues/1)); markdown in `wayfinder/` is seed/history (imported 2026-08-10 via T02)
 
 ## Destination
 
@@ -24,27 +24,27 @@ Settled during charting (recorded in PID §10 Decisions log):
 
 Settled by ticket:
 
-- [T01 — Settle the final name](tickets.md) — **name is `krosval`** (binary `krosval`, optional alias `kv`). Reads as *cross-validation* — many folds cross-checking into one validated, confidence-scored result, matching the peer-review mechanism. Clear on npm + crates.io + GitHub (no dev/product collision). Repo created at github.com/amit-t/krosval. Chosen 2026-08-05 over `kroval` by Amit's veto on the cross-validation rationale. Unblocked T02; PID/map renamed from the working title `parallax`.
+- [T01 — Settle the final name](https://github.com/amit-t/krosval/issues/2) — **name is `krosval`** (binary `krosval`, optional alias `kv`). Reads as *cross-validation* — many folds cross-checking into one validated, confidence-scored result, matching the peer-review mechanism. Clear on npm + crates.io + GitHub (no dev/product collision). Repo created at github.com/amit-t/krosval. Chosen 2026-08-05 over `kroval` by Amit's veto on the cross-validation rationale. Unblocked T02; PID/map renamed from the working title `parallax`.
 
 ## Open tickets
 
-*(GitHub issues once T02's import runs; frontier = open + unblocked + unclaimed.)*
+*(Frontier = open + unblocked + unclaimed.)*
 
-| ID | Title | Type | Blocked by |
-|---|---|---|---|
-| [T02](tickets.md) | Create the GitHub repo and import this map as issues | task (HITL) | — (T01 resolved; repo already created) |
-| [T03](tickets.md) | Choose implementation language, distribution, and CLI framework | grilling (HITL) | — |
-| [T04](tickets.md) | Research: headless invocation contracts of target CLI agents | research (AFK) | — |
-| [T05](tickets.md) | Research: automation surfaces of the five target terminals | research (AFK) | — |
-| [T06](tickets.md) | Research: safe discovery of wrapper profiles and agent configs | research (AFK) | — |
-| [T07](tickets.md) | Task: inventory persona-zero machine (agents, wrappers, terminals) | task (HITL) | — |
-| [T08](tickets.md) | Design the deliberation protocol and transcript format | grilling (HITL) | T04 |
-| [T09](tickets.md) | Prototype: end-to-end council session CLI UX | prototype (HITL) | — |
-| [T10](tickets.md) | Design the discovery model, registry format, and first-run interview | grilling (HITL) | T06, T07 |
-| [T11](tickets.md) | Design deliberation modes as declarative recipes | grilling (HITL) | T08 |
-| [T12](tickets.md) | Design observatory mode and per-terminal integration tiers | grilling (HITL) | T05, T08 |
+| ID | Issue | Title | Type | Blocked by |
+|---|---|---|---|---|
+| T02 | [#3](https://github.com/amit-t/krosval/issues/3) | Create the GitHub repo and import this map as issues | task (HITL) | — (T01 resolved; repo already created) |
+| T03 | [#4](https://github.com/amit-t/krosval/issues/4) | Choose implementation language, distribution, and CLI framework | grilling (HITL) | — |
+| T04 | [#5](https://github.com/amit-t/krosval/issues/5) | Research: headless invocation contracts of target CLI agents | research (AFK) | — |
+| T05 | [#6](https://github.com/amit-t/krosval/issues/6) | Research: automation surfaces of the five target terminals | research (AFK) | — |
+| T06 | [#7](https://github.com/amit-t/krosval/issues/7) | Research: safe discovery of wrapper profiles and agent configs | research (AFK) | — |
+| T07 | [#8](https://github.com/amit-t/krosval/issues/8) | Task: inventory persona-zero machine (agents, wrappers, terminals) | task (HITL) | — |
+| T08 | [#9](https://github.com/amit-t/krosval/issues/9) | Design the deliberation protocol and transcript format | grilling (HITL) | T04 |
+| T09 | [#10](https://github.com/amit-t/krosval/issues/10) | Prototype: end-to-end council session CLI UX | prototype (HITL) | — |
+| T10 | [#11](https://github.com/amit-t/krosval/issues/11) | Design the discovery model, registry format, and first-run interview | grilling (HITL) | T06, T07 |
+| T11 | [#12](https://github.com/amit-t/krosval/issues/12) | Design deliberation modes as declarative recipes | grilling (HITL) | T08 |
+| T12 | [#13](https://github.com/amit-t/krosval/issues/13) | Design observatory mode and per-terminal integration tiers | grilling (HITL) | T05, T08 |
 
-**Current frontier:** T02, T03, T04, T05, T06, T07, T09.
+**Current frontier:** T03, T04, T05, T06, T07, T09. (T02 resolved 2026-08-10 — import complete.)
 
 ## Not yet specified
 
