@@ -2,7 +2,7 @@
 
 > **Name settled.** `krosval` is the final project name, chosen 2026-08-05 via naming ticket [T01](wayfinder/tickets.md). It reads as *cross-validation* — many independent folds cross-checking into one validated, confidence-scored result, which is exactly the deliberation mechanism. The codebase stays name-agnostic: no branding baked into protocol formats, transcript schemas, or file layouts, so the name lives as a single replaceable constant.
 
-**Version:** 0.2 · **Date:** 2026-08-05 · **Owner:** Amit Tiwari · **Repo:** https://github.com/amit-t/krosval · **Status:** Draft — discovery in progress via the Wayfinder map
+**Version:** 0.3 · **Date:** 2026-08-11 · **Owner:** Amit Tiwari · **Repo:** https://github.com/amit-t/krosval · **Status:** Draft — discovery in progress via the Wayfinder map
 
 ---
 
@@ -159,10 +159,11 @@ Key architectural bets already made: **hybrid execution** — headless subproces
 | D3 | v1 terminal targets: tmux, iTerm2, Ghostty, cmux, herdr | User-confirmed list |
 | D4 | Council members are CLI agents/wrappers, not raw provider APIs | The product's differentiation; avoids key management |
 | D5 | **Name settled: `krosval`** (binary `krosval`, optional alias `kv`) — T01 resolved 2026-08-05 | Reads as *cross-validation* (folds cross-checking → one validated, confidence-scored result), matching the peer-review mechanism; clear on npm + crates.io + GitHub, no dev/product collision; repo live at github.com/amit-t/krosval |
+| D6 | **Stack: TypeScript on Bun** — T03 resolved 2026-08-11. pnpm workspace (`packages/engine` lib + `packages/cli` bin), `commander`, `Bun.spawn`, `bun test`. Distribution: npm registry primary (`pnpm add -g krosval`), `bun build --compile` binaries on GitHub releases + Homebrew tap secondary; `kv` via second `bin` entry. License MIT OR Apache-2.0 | Amit's call over the Rust recommendation (sole-builder velocity, agent-ecosystem familiarity); ~50–90 MB Bun-compiled binaries accepted as trade-off. `node-pty`-on-Bun compat flagged for T04 validation; npm name reservation spun out as T13 |
 
 ## 11. Open questions
 
-Held on the Wayfinder map (`wayfinder/map.md`) as tickets and fog — notably: implementation language/stack (T03), the per-agent headless invocation contracts (T04), per-terminal automation depth (T05), wrapper discovery technique and its security posture (T06), the deliberation protocol's structured-ballot format (T08), and everything listed under *Not yet specified*. Naming (T01) is resolved; repo creation + issue import (T02) is in progress.
+Held on the Wayfinder map (`wayfinder/map.md`) as tickets and fog — notably: the per-agent headless invocation contracts (T04, now including `node-pty`-on-Bun compat validation), per-terminal automation depth (T05), wrapper discovery technique and its security posture (T06), the deliberation protocol's structured-ballot format (T08), and everything listed under *Not yet specified*. Resolved: naming (T01), repo + issue import (T02), stack/distribution (T03 → D6). Open task: npm name reservation (T13).
 
 ## 12. Risks
 
@@ -172,12 +173,13 @@ Held on the Wayfinder map (`wayfinder/map.md`) as tickets and fog — notably: i
 | Peer review with tool-capable agents is slow/expensive | Deliberations feel unusable | Recipe-level controls: review-only prompts with tools disabled where the agent supports it; per-stage timeouts; cost display (NFR-3) |
 | Wrapper-profile parsing (shell rc files) is fragile and security-sensitive | Wrong/dangerous invocations | Treat parsed wrappers as *candidates* requiring user confirmation in the interview; never execute rc files to introspect (T06) |
 | Terminal automation surfaces vary wildly (Ghostty especially) | Observatory mode inconsistent | Capability-tiered integration: full panes where possible, tab-spawn or none elsewhere; tmux as the reference implementation (T05) |
+| `node-pty` may not work under the Bun runtime (native-module compat) | PTY-per-seat observatory design blocked on the chosen stack | T04 validates before T08/T12 depend on it; fallback is pipe-based capture without PTY semantics |
 | herdr/cmux overlap with krosval's own value | Confused positioning | Position as *host environments*, not competitors: they multiplex agents; krosval makes them deliberate (T05 assesses integrate-vs-inspire) |
 | Chairman quality bottlenecks the product | Weak syntheses | Chairman is a seat like any other — swappable; synthesis prompt engineering gets its own attention in T08 |
 
 ## 13. Milestones (indicative; sequencing firms up as the map resolves)
 
-- **M0 — Way found**: Wayfinder map exhausted; name final (**done: krosval**); repo live with issues imported; stack chosen; protocol + discovery designs locked.
+- **M0 — Way found**: Wayfinder map exhausted; name final (**done: krosval**); repo live with issues imported (**done**); stack chosen (**done: TypeScript/Bun, D6**); protocol + discovery designs locked.
 - **M1 — Skeleton council**: registry (manual entries only) + adapters for Claude Code and one other agent + stage-1 parallel gathering with streaming; fake-agent test harness.
 - **M2 — Full pipeline**: peer review, chairman synthesis, consensus card, transcripts; the four modes as recipes.
 - **M3 — Discovery**: auto-discovery + first-run interview + wrapper profiles.

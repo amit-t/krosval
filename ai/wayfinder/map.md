@@ -25,6 +25,8 @@ Settled during charting (recorded in PID §10 Decisions log):
 Settled by ticket:
 
 - [T01 — Settle the final name](https://github.com/amit-t/krosval/issues/2) — **name is `krosval`** (binary `krosval`, optional alias `kv`). Reads as *cross-validation* — many folds cross-checking into one validated, confidence-scored result, matching the peer-review mechanism. Clear on npm + crates.io + GitHub (no dev/product collision). Repo created at github.com/amit-t/krosval. Chosen 2026-08-05 over `kroval` by Amit's veto on the cross-validation rationale. Unblocked T02; PID/map renamed from the working title `parallax`.
+- [T02 — Create the GitHub repo and import this map as issues](https://github.com/amit-t/krosval/issues/3) — repo live, map + tickets imported as issues 2026-08-10; GitHub issues are now the canonical tracker.
+- [T03 — Choose implementation language, distribution, and CLI framework](https://github.com/amit-t/krosval/issues/4) — **TypeScript on Bun** (Amit's call over the Rust recommendation; ~50–90 MB compiled-binary trade-off accepted). pnpm workspace (`packages/engine` + `packages/cli`), `commander`, `Bun.spawn`, `bun test`. Distribution: npm registry primary, `bun build --compile` binaries on GitHub releases + Homebrew tap secondary; `kv` as a second `bin` entry. License MIT OR Apache-2.0. Spawned [T13 — reserve krosval on npm](https://github.com/amit-t/krosval/issues/14); flagged `node-pty`-on-Bun compat as a T04 validation item.
 
 ## Open tickets
 
@@ -32,8 +34,6 @@ Settled by ticket:
 
 | ID | Issue | Title | Type | Blocked by |
 |---|---|---|---|---|
-| T02 | [#3](https://github.com/amit-t/krosval/issues/3) | Create the GitHub repo and import this map as issues | task (HITL) | — (T01 resolved; repo already created) |
-| T03 | [#4](https://github.com/amit-t/krosval/issues/4) | Choose implementation language, distribution, and CLI framework | grilling (HITL) | — |
 | T04 | [#5](https://github.com/amit-t/krosval/issues/5) | Research: headless invocation contracts of target CLI agents | research (AFK) | — |
 | T05 | [#6](https://github.com/amit-t/krosval/issues/6) | Research: automation surfaces of the five target terminals | research (AFK) | — |
 | T06 | [#7](https://github.com/amit-t/krosval/issues/7) | Research: safe discovery of wrapper profiles and agent configs | research (AFK) | — |
@@ -43,8 +43,9 @@ Settled by ticket:
 | T10 | [#11](https://github.com/amit-t/krosval/issues/11) | Design the discovery model, registry format, and first-run interview | grilling (HITL) | T06, T07 |
 | T11 | [#12](https://github.com/amit-t/krosval/issues/12) | Design deliberation modes as declarative recipes | grilling (HITL) | T08 |
 | T12 | [#13](https://github.com/amit-t/krosval/issues/13) | Design observatory mode and per-terminal integration tiers | grilling (HITL) | T05, T08 |
+| T13 | [#14](https://github.com/amit-t/krosval/issues/14) | Task: reserve krosval on the npm registry | task (HITL) | — |
 
-**Current frontier:** T03, T04, T05, T06, T07, T09. (T02 resolved 2026-08-10 — import complete.)
+**Current frontier:** T04, T05, T06, T07, T09, T13. (T03 resolved 2026-08-11 — TypeScript/Bun stack.)
 
 ## Not yet specified
 
@@ -54,11 +55,11 @@ Fog — in scope, not yet sharp enough to ticket; graduates as the frontier adva
 - **Persistence & recall** — transcript store format details, `history`/`show`/search UX, project workspaces with persistent context across deliberations. Sharpens after T08.
 - **Interactive console mode** — the conversational REPL (vs one-shot `ask`): threading follow-ups through a council, context carry-over. Sharpens after T09.
 - **Security posture of seats** — permission modes per seat (a Devil's Advocate probably shouldn't run `rm`), sandboxing, how wrapper-injected permission modes are honored/overridden. Sharpens after T06 + T08.
-- **Adapter SDK & contribution model** — how third parties add agents; fixture/contract-test kit. Sharpens after T04 + T03.
-- **Testing strategy** — fake-agent harness design, orchestration CI. Sharpens after T03 + T08.
+- **Adapter SDK & contribution model** — how third parties add agents; fixture/contract-test kit. Sharpens after T04 (T03 done: adapters are TS modules in the pnpm workspace).
+- **Testing strategy** — fake-agent harness design, orchestration CI. Sharpens after T08 (T03 done: `bun test` + GitHub Actions).
 - **Council chains** — multi-stage workflows (Research→Analyze→Report). Deliberately post-protocol; likely post-v1 scope call when T08 closes.
 - **Evidence mode / citations** — reference-app feature; unclear semantics when members are tool-using agents that can actually browse. Revisit after T08.
-- **Packaging & first-run polish** — install channels, shell completion, onboarding copy. Sharpens after T03.
+- **Packaging & first-run polish** — shell completion, onboarding copy, Homebrew formula details (channels settled by T03: npm primary, binaries + tap secondary). Sharpens after T09.
 
 ## Out of scope
 
@@ -66,3 +67,4 @@ Fog — in scope, not yet sharp enough to ticket; graduates as the frontier adva
 - **Direct provider-API council seats** (the techniciti model) — v1 seats are CLI agents/wrappers only; API seats would be a fresh effort if the destination is redrawn post-v1.
 - **Hosted/managed anything** — accounts, sync, billing, telemetry. Local-first is a product law, not a deferral.
 - **Windows support** — macOS/Linux first; revisit post-v1.
+
