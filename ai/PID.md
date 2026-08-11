@@ -2,7 +2,7 @@
 
 > **Name settled.** `krosval` is the final project name, chosen 2026-08-05 via naming ticket [T01](wayfinder/tickets.md). It reads as *cross-validation* — many independent folds cross-checking into one validated, confidence-scored result, which is exactly the deliberation mechanism. The codebase stays name-agnostic: no branding baked into protocol formats, transcript schemas, or file layouts, so the name lives as a single replaceable constant.
 
-**Version:** 0.3 · **Date:** 2026-08-11 · **Owner:** Amit Tiwari · **Repo:** https://github.com/amit-t/krosval · **Status:** Draft — discovery in progress via the Wayfinder map
+**Version:** 0.4 · **Date:** 2026-08-11 · **Owner:** Amit Tiwari · **Repo:** https://github.com/amit-t/krosval · **Status:** Draft — discovery in progress via the Wayfinder map
 
 ---
 
@@ -160,10 +160,11 @@ Key architectural bets already made: **hybrid execution** — headless subproces
 | D4 | Council members are CLI agents/wrappers, not raw provider APIs | The product's differentiation; avoids key management |
 | D5 | **Name settled: `krosval`** (binary `krosval`, optional alias `kv`) — T01 resolved 2026-08-05 | Reads as *cross-validation* (folds cross-checking → one validated, confidence-scored result), matching the peer-review mechanism; clear on npm + crates.io + GitHub, no dev/product collision; repo live at github.com/amit-t/krosval |
 | D6 | **Stack: TypeScript on Bun** — T03 resolved 2026-08-11. pnpm workspace (`packages/engine` lib + `packages/cli` bin), `commander`, `Bun.spawn`, `bun test`. Distribution: npm registry primary (`pnpm add -g krosval`), `bun build --compile` binaries on GitHub releases + Homebrew tap secondary; `kv` via second `bin` entry. License MIT OR Apache-2.0 | Amit's call over the Rust recommendation (sole-builder velocity, agent-ecosystem familiarity); ~50–90 MB Bun-compiled binaries accepted as trade-off. `node-pty`-on-Bun compat flagged for T04 validation; npm name reservation spun out as T13 |
+| D7 | **Deliberation protocol locked** — T08 resolved 2026-08-11; spec at [`docs/protocol.md`](../docs/protocol.md). Highlights: review is a fresh invocation (never session resume) for anonymity; self-review included; ballot = ranking + 4-criterion 1–10 scores + critiques; gather quorum defaults all-or-abort (config-relaxable); tool policy defaults `readOnly` with user-config precedence over recipe/seat; chairman fixed per council, anonymized inputs, fallback chain; confidence = deterministic ballot math (Kendall's W) + agreement/dispute lists from the synthesis call; transcript = live-written append-only JSONL, full granularity, resolved identities + label map. Council chains ruled out of v1 | 17 decisions via grilled interview (`.grills/2026-08-11-1459-deliberation-protocol-deep.md`); grounded in T04's verified adapter contract. Unblocks T11/T12/T14; graduates fog into T15 (budgeting), T16 (persistence), T17 (fake-agent harness) |
 
 ## 11. Open questions
 
-Held on the Wayfinder map (`wayfinder/map.md`) as tickets and fog — notably: the per-agent headless invocation contracts (T04, now including `node-pty`-on-Bun compat validation), per-terminal automation depth (T05), wrapper discovery technique and its security posture (T06), the deliberation protocol's structured-ballot format (T08), and everything listed under *Not yet specified*. Resolved: naming (T01), repo + issue import (T02), stack/distribution (T03 → D6). Open task: npm name reservation (T13).
+Held on the Wayfinder map (`wayfinder/map.md`) as tickets and fog — notably: discovery/registry/first-run interview (T10), modes as recipes (T11), observatory integration tiers (T12), adapter SDK (T14), budgeting (T15), persistence (T16), fake-agent harness (T17), CLI UX prototype (T09). Resolved: naming (T01), repo + issue import (T02), stack/distribution (T03 → D6), agent contracts (T04), terminal automation (T05), discovery techniques (T06), persona-zero inventory (T07), deliberation protocol (T08 → D7, `docs/protocol.md`). Open task: npm name reservation (T13).
 
 ## 12. Risks
 
