@@ -1,0 +1,19 @@
+$ krosval ask --json "Should krosval store transcripts as JSONL files or in SQLite?" | jq -c .event
+  (NDJSON on stdout, one event per line — sketch of the machine interface)
+
+  {"event":"deliberation.start","id":"d-0811-a3f2","council":"quorum","mode":"consensus-seeker","seats":4}
+  {"event":"stage.start","stage":"gather","n":1,"of":4}
+  {"event":"seat.status","seat":"gemini","status":"working"}
+  {"event":"seat.delta","seat":"gemini","text":"Comparing: SQLite gives indexed…"}
+  {"event":"seat.result","seat":"gemini","status":"done","tokens":2140,"duration_s":34}
+  {"event":"stage.end","stage":"gather","ok":4,"failed":0}
+  {"event":"stage.start","stage":"review","n":2,"of":4}
+  {"event":"ballot.received","reviewer_label":"B","ranking":["A","B","D","C"]}
+  {"event":"stage.start","stage":"synthesize","n":3,"of":4,"chairman":"claude"}
+  {"event":"synthesis.delta","text":"Store transcripts as append-only…"}
+  {"event":"stage.start","stage":"confidence","n":4,"of":4}
+  {"event":"consensus","confidence":0.82,"band":"high","agreed":2,"disputed":1}
+  {"event":"deliberation.end","id":"d-0811-a3f2","transcript":"~/.local/share/krosval/transcripts/d-0811-a3f2.jsonl"}
+
+same event stream feeds observatory panes and the transcript — one vocabulary everywhere.
+

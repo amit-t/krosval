@@ -1,0 +1,32 @@
+$ krosval
+
+No registry found — first run. Scanning this machine (read-only, nothing executed)…
+
+  ✓ PATH + install dirs    3 agents found
+  ✓ zsh config chain       2 wrapper profiles traced (~/Profiles, 6 files)
+  ✓ agent configs          claude: 2 settings profiles, 1 pinned model env
+
+Agents
+  NAME     BINARY                     VERSION   VIA
+  claude   ~/.local/bin/claude        2.1.227   PATH
+  gemini   /opt/homebrew/bin/gemini   0.44.0    PATH
+  codex    ~/.cargo/bin/codex         0.146.0   PATH
+
+Wrapper profiles  (parsed from zsh source — never executed)
+  NAME  WRAPS    INJECTS                                SOURCE
+  co    claude   model opus, skip-permissions           ~/Profiles/functions/co.zsh:12
+  cf    claude   persona "fast", model sonnet           ~/Profiles/functions/cf.zsh:8
+
+  ⚠ co injects --dangerously-skip-permissions. Council seats run read-only by default; this flag is stripped in council runs unless you opt in per-council.
+
+Keep all 5? [Y]es / [e]dit / [s]kip some: y
+
+Registry written to ~/.config/krosval/registry.toml  (plain file — edit any time)
+
+Default council quorum proposed
+  seats: claude · gemini · codex        chairman: claude
+  (wrappers co/cf registered but not seated — add with `krosval council edit quorum`)
+Accept? [Y/n]: y
+
+Ready. Try:  krosval ask "your question"
+

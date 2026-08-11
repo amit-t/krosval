@@ -1,0 +1,23 @@
+$ krosval ask --observe "Should krosval store transcripts as JSONL files or in SQLite?"
+  observatory: tmux detected — 4 panes + status bar (presentation only; engine is headless)
+
+┌───────────────────────────────────────┬───────────────────────────────────────┐
+│ claude [working] ·····················│ co [working] ·························│
+│ Reading question + context…           │ Considering the audit-trail persona.  │
+│ JSONL: append-only, crash-safe,       │ A cautious tech lead wants records    │
+│ greppable. SQLite adds query power    │ that survive partial writes. JSONL    │
+│ but a binary format for an audit      │ prefix stays valid after a crash.     │
+│                                       │                                       │
+├───────────────────────────────────────┼───────────────────────────────────────┤
+│ gemini [working] ·····················│ codex [done] ·························│
+│ Comparing: SQLite gives indexed       │ grep-ability matters: users will      │
+│ history search and concurrent reads.  │ pipe transcripts into jq. One file    │
+│ JSONL needs a scan per query. For     │ per deliberation keeps blast radius   │
+│ v1 volume (<10k records) scan is fine.│ small. Recommend JSONL + index later. │
+│                                       │                                       │
+└───────────────────────────────────────┴───────────────────────────────────────┘
+[krosval] d-0811-a3f2 · stage 1/4 gathering · 3 working 1 done · 0:52
+
+panes close when the deliberation ends; add --keep-panes to leave them for scrollback.
+same run, no terminal integration → falls back to the inline seat table (scene: ask).
+

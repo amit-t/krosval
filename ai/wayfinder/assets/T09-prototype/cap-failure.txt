@@ -1,0 +1,53 @@
+$ krosval ask "Should krosval store transcripts as JSONL files or in SQLite?"
+
+council quorum · mode consensus-seeker · 4 seats · chairman claude · deliberation d-0811-a3f2
+
+▶ 1/4 gathering  4 seats, parallel, tools read-only
+  ~ claude   working             0s
+  ~ co       working             0s
+  ~ gemini   working             0s
+  ~ codex    working             0s
+  …
+  ✓ claude   done    1.9k tok   41s
+  ✓ co       done    1.2k tok   55s
+  ✗ gemini   timeout 0.8k tok        budget 120s exhausted
+  ✓ codex    done    3.4k tok   62s
+
+  ⚠ gemini hit the 120s stage budget — seat dropped for this deliberation.
+    quorum rule: 3 of 4 seats ≥ minimum 2 — council continues without it.
+
+▶ 2/4 peer review  answers anonymized as Response A–C · reviewers see no names · tools off
+  ~ claude   working             0s
+  ~ co       working             0s
+  ~ codex    working             0s
+  …
+  ✓ claude   done    1.9k tok   31s
+  ✓ co       done    1.2k tok   31s
+  ✓ codex    done    3.4k tok   24s
+  3/3 ballots in — rankings + per-answer critiques, self-review included
+
+▶ 3/4 synthesis  chairman claude · inputs: all answers + all ballots, still anonymized
+
+  Store transcripts as append-only JSONL, one file per deliberation. Every
+  reviewer independently valued crash-safety of an appendable log over
+  query power; the strongest dissent (Response C) wants SQLite for
+  history search — satisfiable later as a derived index without changing
+  the record format. Recommendation: JSONL now, optional index post-v1.
+
+▶ 4/4 confidence  computed from ballots — no extra model pass
+
+┌─ consensus ────────────────────────────────────────────────────────────────┐
+│ confidence   HIGH  0.84   (3 seats — quorum, not full council)             │
+│                                                                            │
+│ agreed       JSONL append-only record        3/3                           │
+│              one file per deliberation       3/3                           │
+│ disputed     search needs SQLite index       C vs A,B                      │
+│                                                                            │
+│ peer scores  A 8.7 · B 8.1 · C 6.9           (mean of others' ballots)     │
+│ seats        A=codex  B=claude  C=co         revealed post-review          │
+│ dropped      gemini — timeout in gathering   ✗                             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+transcript ~/.local/share/krosval/transcripts/d-0811-a3f2.jsonl   replay: krosval show d-0811-a3f2
+elapsed 3m12s · est. cost $0.14 (claude seats only — others don't report cost)
+
