@@ -13,7 +13,7 @@
 
 ## Tracker
 
-Discovery tickets live as GitHub issues on this repo (labels `wayfinder:map`, `wayfinder:{research,prototype,grilling,task}`): map = [#1](https://github.com/amit-t/krosval/issues/1), tickets T01–T13 = [#2–#14](https://github.com/amit-t/krosval/issues). To (re)sync from the markdown, run (idempotent — existing issues are matched by title and reused):
+Discovery tickets live as GitHub issues on this repo (labels `wayfinder:map`, `wayfinder:{research,prototype,grilling,task}`): map = [#1](https://github.com/amit-t/krosval/issues/1), tickets T01–T14 = [#2–#15](https://github.com/amit-t/krosval/issues). Research assets land in [wayfinder/assets/](wayfinder/assets/). To (re)sync from the markdown, run (idempotent — existing issues are matched by title and reused):
 
 ```bash
 cd wayfinder

@@ -27,6 +27,7 @@ Settled by ticket:
 - [T01 — Settle the final name](https://github.com/amit-t/krosval/issues/2) — **name is `krosval`** (binary `krosval`, optional alias `kv`). Reads as *cross-validation* — many folds cross-checking into one validated, confidence-scored result, matching the peer-review mechanism. Clear on npm + crates.io + GitHub (no dev/product collision). Repo created at github.com/amit-t/krosval. Chosen 2026-08-05 over `kroval` by Amit's veto on the cross-validation rationale. Unblocked T02; PID/map renamed from the working title `parallax`.
 - [T02 — Create the GitHub repo and import this map as issues](https://github.com/amit-t/krosval/issues/3) — repo live, map + tickets imported as issues 2026-08-10; GitHub issues are now the canonical tracker.
 - [T03 — Choose implementation language, distribution, and CLI framework](https://github.com/amit-t/krosval/issues/4) — **TypeScript on Bun** (Amit's call over the Rust recommendation; ~50–90 MB compiled-binary trade-off accepted). pnpm workspace (`packages/engine` + `packages/cli`), `commander`, `Bun.spawn`, `bun test`. Distribution: npm registry primary, `bun build --compile` binaries on GitHub releases + Homebrew tap secondary; `kv` as a second `bin` entry. License MIT OR Apache-2.0. Spawned [T13 — reserve krosval on npm](https://github.com/amit-t/krosval/issues/14); flagged `node-pty`-on-Bun compat as a T04 validation item.
+- [T04 — Research: headless invocation contracts of target CLI agents](https://github.com/amit-t/krosval/issues/5) — all three primaries (Claude Code 2.1.227, Gemini CLI 0.44.0, Codex CLI 0.146.0) verified live: NDJSON streaming + headless session resume work everywhere, so two-stage gather-then-review pipelines are safe. Minimum common `SeatAdapter` contract proposed; tool-policy floor is read-only (Codex can't disable shell); success must be read from the parsed terminal event, never exit codes. Secondaries: Qwen Code trivial (Claude-shaped), opencode/Amp feasible, aider + Cursor CLI skip-for-v1. `node-pty` is broken on Bun — replaced by native `Bun.Terminal` (verified). Full matrix + contract: [assets/T04-agent-contracts.md](assets/T04-agent-contracts.md). Unblocked T08; graduated adapter-SDK fog into [T14](https://github.com/amit-t/krosval/issues/15). Resolved 2026-08-11.
 
 ## Open tickets
 
@@ -34,28 +35,27 @@ Settled by ticket:
 
 | ID | Issue | Title | Type | Blocked by |
 |---|---|---|---|---|
-| T04 | [#5](https://github.com/amit-t/krosval/issues/5) | Research: headless invocation contracts of target CLI agents | research (AFK) | — |
 | T05 | [#6](https://github.com/amit-t/krosval/issues/6) | Research: automation surfaces of the five target terminals | research (AFK) | — |
 | T06 | [#7](https://github.com/amit-t/krosval/issues/7) | Research: safe discovery of wrapper profiles and agent configs | research (AFK) | — |
 | T07 | [#8](https://github.com/amit-t/krosval/issues/8) | Task: inventory persona-zero machine (agents, wrappers, terminals) | task (HITL) | — |
-| T08 | [#9](https://github.com/amit-t/krosval/issues/9) | Design the deliberation protocol and transcript format | grilling (HITL) | T04 |
+| T08 | [#9](https://github.com/amit-t/krosval/issues/9) | Design the deliberation protocol and transcript format | grilling (HITL) | — |
 | T09 | [#10](https://github.com/amit-t/krosval/issues/10) | Prototype: end-to-end council session CLI UX | prototype (HITL) | — |
 | T10 | [#11](https://github.com/amit-t/krosval/issues/11) | Design the discovery model, registry format, and first-run interview | grilling (HITL) | T06, T07 |
 | T11 | [#12](https://github.com/amit-t/krosval/issues/12) | Design deliberation modes as declarative recipes | grilling (HITL) | T08 |
 | T12 | [#13](https://github.com/amit-t/krosval/issues/13) | Design observatory mode and per-terminal integration tiers | grilling (HITL) | T05, T08 |
 | T13 | [#14](https://github.com/amit-t/krosval/issues/14) | Task: reserve krosval on the npm registry | task (HITL) | — |
+| T14 | [#15](https://github.com/amit-t/krosval/issues/15) | Design the adapter SDK and contract-test kit | grilling (HITL) | T08 |
 
-**Current frontier:** T04, T05, T06, T07, T09, T13. (T03 resolved 2026-08-11 — TypeScript/Bun stack.)
+**Current frontier:** T05, T06, T07, T08, T09, T13. (T04 resolved 2026-08-11 — headless contracts verified, T08 unblocked.)
 
 ## Not yet specified
 
 Fog — in scope, not yet sharp enough to ticket; graduates as the frontier advances:
 
-- **Cost & latency budgeting** — per-seat token/cost caps, stage timeouts, what "quorum" means when seats fail or exceed budget. Sharpens after T04 and T08.
+- **Cost & latency budgeting** — per-seat token/cost caps, stage timeouts, what "quorum" means when seats fail or exceed budget. Sharpens after T08 (T04 done: engine owns timeouts/budgets — no CLI has a reliable wall-clock flag; cost-USD only reported by Claude Code).
 - **Persistence & recall** — transcript store format details, `history`/`show`/search UX, project workspaces with persistent context across deliberations. Sharpens after T08.
 - **Interactive console mode** — the conversational REPL (vs one-shot `ask`): threading follow-ups through a council, context carry-over. Sharpens after T09.
 - **Security posture of seats** — permission modes per seat (a Devil's Advocate probably shouldn't run `rm`), sandboxing, how wrapper-injected permission modes are honored/overridden. Sharpens after T06 + T08.
-- **Adapter SDK & contribution model** — how third parties add agents; fixture/contract-test kit. Sharpens after T04 (T03 done: adapters are TS modules in the pnpm workspace).
 - **Testing strategy** — fake-agent harness design, orchestration CI. Sharpens after T08 (T03 done: `bun test` + GitHub Actions).
 - **Council chains** — multi-stage workflows (Research→Analyze→Report). Deliberately post-protocol; likely post-v1 scope call when T08 closes.
 - **Evidence mode / citations** — reference-app feature; unclear semantics when members are tool-using agents that can actually browse. Revisit after T08.
