@@ -28,6 +28,7 @@ Settled by ticket:
 - [T02 — Create the GitHub repo and import this map as issues](https://github.com/amit-t/krosval/issues/3) — repo live, map + tickets imported as issues 2026-08-10; GitHub issues are now the canonical tracker.
 - [T03 — Choose implementation language, distribution, and CLI framework](https://github.com/amit-t/krosval/issues/4) — **TypeScript on Bun** (Amit's call over the Rust recommendation; ~50–90 MB compiled-binary trade-off accepted). pnpm workspace (`packages/engine` + `packages/cli`), `commander`, `Bun.spawn`, `bun test`. Distribution: npm registry primary, `bun build --compile` binaries on GitHub releases + Homebrew tap secondary; `kv` as a second `bin` entry. License MIT OR Apache-2.0. Spawned [T13 — reserve krosval on npm](https://github.com/amit-t/krosval/issues/14); flagged `node-pty`-on-Bun compat as a T04 validation item.
 - [T04 — Research: headless invocation contracts of target CLI agents](https://github.com/amit-t/krosval/issues/5) — all three primaries (Claude Code 2.1.227, Gemini CLI 0.44.0, Codex CLI 0.146.0) verified live: NDJSON streaming + headless session resume work everywhere, so two-stage gather-then-review pipelines are safe. Minimum common `SeatAdapter` contract proposed; tool-policy floor is read-only (Codex can't disable shell); success must be read from the parsed terminal event, never exit codes. Secondaries: Qwen Code trivial (Claude-shaped), opencode/Amp feasible, aider + Cursor CLI skip-for-v1. `node-pty` is broken on Bun — replaced by native `Bun.Terminal` (verified). Full matrix + contract: [assets/T04-agent-contracts.md](assets/T04-agent-contracts.md). Unblocked T08; graduated adapter-SDK fog into [T14](https://github.com/amit-t/krosval/issues/15). Resolved 2026-08-11.
+- [T05 — Research: automation surfaces of the five target terminals](https://github.com/amit-t/krosval/issues/6) — **read-back is optional**: every terminal can spawn a pane running a krosval-owned viewer (`krosval observe --seat <id>` fed by engine IPC), so the universal adapter contract shrinks to *create pane with command + title + cleanup* — all five satisfy it. Tiers: **Tier 1 headless** (verified live end-to-end) = tmux 3.6a (reference), cmux 0.64.22, herdr 0.7.4 — both socket CLIs are agent-native (herdr `agent wait --status`, cmux `set-status`/`events`) → **integrate both** as first-class backends and borrow their status vocabulary. **Tier 2 one-time-consent** = iTerm2 3.6.11 (Python API, Tier-1-rich after consent dialog) and Ghostty 1.3.1 (AppleScript sdef covers create-with-command/title/input; no read-back; TCC Automation prompt blocks unattended first call — verified). Detection order matters: `CMUX_*` before `TERM_PROGRAM` (cmux masquerades as ghostty). Matrix + `ObservatoryAdapter` contract: [assets/T05-terminal-automation.md](assets/T05-terminal-automation.md). T12's terminal-side input ready (still blocked by T08). Resolved 2026-08-11.
 
 ## Open tickets
 
@@ -35,18 +36,17 @@ Settled by ticket:
 
 | ID | Issue | Title | Type | Blocked by |
 |---|---|---|---|---|
-| T05 | [#6](https://github.com/amit-t/krosval/issues/6) | Research: automation surfaces of the five target terminals | research (AFK) | — |
 | T06 | [#7](https://github.com/amit-t/krosval/issues/7) | Research: safe discovery of wrapper profiles and agent configs | research (AFK) | — |
 | T07 | [#8](https://github.com/amit-t/krosval/issues/8) | Task: inventory persona-zero machine (agents, wrappers, terminals) | task (HITL) | — |
 | T08 | [#9](https://github.com/amit-t/krosval/issues/9) | Design the deliberation protocol and transcript format | grilling (HITL) | — |
 | T09 | [#10](https://github.com/amit-t/krosval/issues/10) | Prototype: end-to-end council session CLI UX | prototype (HITL) | — |
 | T10 | [#11](https://github.com/amit-t/krosval/issues/11) | Design the discovery model, registry format, and first-run interview | grilling (HITL) | T06, T07 |
 | T11 | [#12](https://github.com/amit-t/krosval/issues/12) | Design deliberation modes as declarative recipes | grilling (HITL) | T08 |
-| T12 | [#13](https://github.com/amit-t/krosval/issues/13) | Design observatory mode and per-terminal integration tiers | grilling (HITL) | T05, T08 |
+| T12 | [#13](https://github.com/amit-t/krosval/issues/13) | Design observatory mode and per-terminal integration tiers | grilling (HITL) | T08 (T05 done) |
 | T13 | [#14](https://github.com/amit-t/krosval/issues/14) | Task: reserve krosval on the npm registry | task (HITL) | — |
 | T14 | [#15](https://github.com/amit-t/krosval/issues/15) | Design the adapter SDK and contract-test kit | grilling (HITL) | T08 |
 
-**Current frontier:** T05, T06, T07, T08, T09, T13. (T04 resolved 2026-08-11 — headless contracts verified, T08 unblocked.)
+**Current frontier:** T06, T07, T08, T09, T13. (T05 resolved 2026-08-11 — terminal tiers verified; T12 now waits only on T08.)
 
 ## Not yet specified
 
