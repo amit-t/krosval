@@ -3,23 +3,23 @@ $ krosval ask "Should krosval store transcripts as JSONL files or in SQLite?"
 council quorum · mode consensus-seeker · 4 seats · chairman claude · deliberation d-0811-a3f2
 
 ▶ 1/4 gathering  4 seats, parallel, tools read-only
-  ~ claude   working             0s
-  ~ co       working             0s
-  ~ gemini   working             0s
-  ~ codex    working             0s
+  ~ claude   working             0s  Reading question + context…
+  ~ co       working             0s  Considering the audit-trail persona.
+  ~ gemini   working             0s  Comparing: SQLite gives indexed
+  ~ codex    working             0s  grep-ability matters: users will
   …
   ✓ claude   done    1.9k tok   41s
   ✓ co       done    1.2k tok   55s
   ✗ gemini   timeout 0.8k tok        budget 120s exhausted
   ✓ codex    done    3.4k tok   62s
 
-  ⚠ gemini hit the 120s stage budget — seat dropped for this deliberation.
-    quorum rule: 3 of 4 seats ≥ minimum 2 — council continues without it.
+  ⚠ gemini hit the 120s stage budget (recipe override) — seat dropped for this deliberation.
+    quorum: this council sets min_seats 2 — 3/4 satisfies it, continuing. (default: all seats required — abort)
 
 ▶ 2/4 peer review  answers anonymized as Response A–C · reviewers see no names · tools off
-  ~ claude   working             0s
-  ~ co       working             0s
-  ~ codex    working             0s
+  ~ claude   working             0s  Scoring Response A: accuracy 9…
+  ~ co       working             0s  Response B strongest on audit needs…
+  ~ codex    working             0s  Comparing B and D on query power…
   …
   ✓ claude   done    1.9k tok   31s
   ✓ co       done    1.2k tok   31s

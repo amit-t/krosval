@@ -70,6 +70,43 @@ interface Seat {
 
 const QUESTION = "Should krosval store transcripts as JSONL files or in SQLite?";
 
+// One fake stream of thought per seat — feeds gathering previews (grill 2:B),
+// observatory panes, and the --json deltas.
+const GATHER_STREAMS: Record<string, string[]> = {
+  claude: [
+    "Reading question + context…",
+    "JSONL: append-only, crash-safe,",
+    "greppable. SQLite adds query power",
+    "but a binary format for an audit",
+    "record is a liability…",
+  ],
+  co: [
+    "Considering the audit-trail persona.",
+    "A cautious tech lead wants records",
+    "that survive partial writes. JSONL",
+    "prefix stays valid after a crash.",
+  ],
+  gemini: [
+    "Comparing: SQLite gives indexed",
+    "history search and concurrent reads.",
+    "JSONL needs a scan per query. For",
+    "v1 volume (<10k records) scan is fine.",
+  ],
+  codex: [
+    "grep-ability matters: users will",
+    "pipe transcripts into jq. One file",
+    "per deliberation keeps blast radius",
+    "small. Recommend JSONL + index later.",
+  ],
+};
+
+const REVIEW_STREAMS: Record<string, string[]> = {
+  claude: ["Scoring Response A: accuracy 9…", "Response C thin on crash-safety…", "Ranking: A > B > D > C."],
+  co: ["Response B strongest on audit needs…", "Critique for D: index cost unpriced…"],
+  gemini: ["Response A cites jq pipelines — apt…", "Scoring completeness across A–D…"],
+  codex: ["Comparing B and D on query power…", "Ranking: A > D > B > C."],
+};
+
 const mkSeats = (): Seat[] => [
   { name: "claude", state: "queued", tokens: 0, finalTok: 1900, doneAt: 41 },
   { name: "co", state: "queued", tokens: 0, finalTok: 1200, doneAt: 55 },
@@ -94,7 +131,7 @@ function stateGlyph(s: Seat, tick: number): string {
   }
 }
 
-function seatRow(s: Seat, tick: number, elapsed: number, extra = ""): string {
+function seatRow(s: Seat, tick: number, elapsed: number, extra = "", preview = ""): string {
   const st =
     s.state === "working"
       ? "working"
@@ -107,13 +144,19 @@ function seatRow(s: Seat, tick: number, elapsed: number, extra = ""): string {
             : red("failed");
   const tok = s.tokens > 0 ? `${(s.tokens / 1000).toFixed(1)}k tok` : "";
   const t = s.state === "working" ? `${elapsed}s` : s.state === "done" ? `${s.doneAt}s` : "";
-  return `  ${stateGlyph(s, tick)} ${s.name.padEnd(8)} ${st.padEnd(PLAIN ? 7 : 16)} ${tok.padStart(8)}  ${t.padStart(4)}${extra}`;
+  // rolling one-line preview of the seat's latest output (grill 2:B) — working seats only
+  const pv = s.state === "working" && preview ? dim(`  ${preview.slice(0, 38)}`) : "";
+  return `  ${stateGlyph(s, tick)} ${s.name.padEnd(8)} ${st.padEnd(PLAIN ? 7 : 16)} ${tok.padStart(8)}  ${t.padStart(4)}${extra}${pv}`;
 }
 
 /** Live seat table: redraws itself in place until every seat resolves. */
 async function runSeatTable(
   seats: Seat[],
-  opts: { speedup?: number; timeoutAt?: { seat: string; at: number } } = {},
+  opts: {
+    speedup?: number;
+    timeoutAt?: { seat: string; at: number };
+    previews?: Record<string, string[]>;
+  } = {},
 ) {
   const speedup = opts.speedup ?? 8; // 1 real tick = `speedup` fake seconds
   let tick = 0;
@@ -121,9 +164,13 @@ async function runSeatTable(
   seats.forEach((s) => (s.state = "working"));
   const maxDone = Math.max(...seats.map((s) => s.doneAt));
   const rows = seats.length;
+  const pv = (s: Seat) => {
+    const pool = opts.previews?.[s.name];
+    return pool ? pool[Math.floor(tick / 6) % pool.length] : "";
+  };
 
   // first paint
-  seats.forEach((s) => line(seatRow(s, tick, elapsed)));
+  seats.forEach((s) => line(seatRow(s, tick, elapsed, "", pv(s))));
 
   while (seats.some((s) => s.state === "working")) {
     await sleep(120);
@@ -146,7 +193,7 @@ async function runSeatTable(
         const to = opts.timeoutAt && s.name === opts.timeoutAt.seat;
         const extra =
           s.state === "timeout" && to ? dim(`  budget ${opts.timeoutAt!.at}s exhausted`) : "";
-        W(clearLine + seatRow(s, tick, Math.floor(elapsed), extra) + "\n");
+        W(clearLine + seatRow(s, tick, Math.floor(elapsed), extra, pv(s)) + "\n");
       }
     }
     if (FAST) {
@@ -244,6 +291,14 @@ async function sceneFirstRun() {
   await sleep(700);
   line(green("y"));
   line();
+  // observatory consent, asked once here (grill 12:B) — auto-on in Tier-1 terminals after a yes
+  line(bold("Observatory") + " — tmux detected " + dim("(also supported: cmux, herdr, iTerm2, Ghostty)"));
+  line("  krosval can mirror each seat's live stream into panes while a council runs.");
+  W("Mirror automatically in supported terminals? " + bold("[Y/n]") + ": ");
+  await sleep(700);
+  line(green("y"));
+  line(dim("  auto-on saved. Per-run opt-out: krosval ask --no-observe · flip later: krosval config observatory off"));
+  line();
   line("Ready. Try:  " + bold(`krosval ask "your question"`));
 }
 
@@ -263,15 +318,18 @@ async function sceneAsk(withFailure: boolean) {
 
   // -- stage 1: gathering
   stageHeader(1, 4, "gathering", "4 seats, parallel, tools read-only");
-  await runSeatTable(seats, withFailure ? { timeoutAt: { seat: "gemini", at: 120 } } : {});
+  await runSeatTable(seats, {
+    previews: GATHER_STREAMS,
+    ...(withFailure ? { timeoutAt: { seat: "gemini", at: 120 } } : {}),
+  });
 
   const alive = seats.filter((s) => s.state === "done");
   if (withFailure) {
     line();
     line(
-      yellow("  ⚠ gemini hit the 120s stage budget — seat dropped for this deliberation.") ,
+      yellow("  ⚠ gemini hit the 120s stage budget (recipe override) — seat dropped for this deliberation."),
     );
-    line(dim("    quorum rule: 3 of 4 seats ≥ minimum 2 — council continues without it."));
+    line(dim("    quorum: this council sets min_seats 2 — 3/4 satisfies it, continuing. (default: all seats required — abort)"));
   }
 
   // -- stage 2: review
@@ -283,7 +341,7 @@ async function sceneAsk(withFailure: boolean) {
     `answers anonymized as Response A–${labels[nAns - 1]} · reviewers see no names · tools off`,
   );
   const reviewers = alive.map((s) => ({ ...s, state: "queued" as SeatState, tokens: 0, doneAt: 18 + (s.doneAt % 14) }));
-  await runSeatTable(reviewers, { speedup: 6 });
+  await runSeatTable(reviewers, { speedup: 6, previews: REVIEW_STREAMS });
   line(dim(`  ${nAns}/${nAns} ballots in — rankings + per-answer critiques, self-review included`));
 
   // -- stage 3: synthesis
@@ -335,41 +393,19 @@ async function sceneAsk(withFailure: boolean) {
 // ---------------------------------------------------------------- scene 4: observatory
 
 async function sceneObservatory() {
-  line(dim("$ ") + bold(`krosval ask --observe "${QUESTION}"`));
-  line(dim("  observatory: tmux detected — 4 panes + status bar (presentation only; engine is headless)"));
+  line(dim("$ ") + bold(`krosval ask "${QUESTION}"`));
+  line(
+    dim("  observatory auto-on (tmux, consented at first run) — 4 panes + status bar · opt out: ") +
+      "--no-observe" +
+      dim(" (presentation only; engine is headless)"),
+  );
   await sleep(600);
   line();
 
   const paneW = 39;
   const paneH = 6;
   const seats = ["claude", "co", "gemini", "codex"];
-  const streams: Record<string, string[]> = {
-    claude: [
-      "Reading question + context…",
-      "JSONL: append-only, crash-safe,",
-      "greppable. SQLite adds query power",
-      "but a binary format for an audit",
-      "record is a liability…",
-    ],
-    co: [
-      "Considering the audit-trail persona.",
-      "A cautious tech lead wants records",
-      "that survive partial writes. JSONL",
-      "prefix stays valid after a crash.",
-    ],
-    gemini: [
-      "Comparing: SQLite gives indexed",
-      "history search and concurrent reads.",
-      "JSONL needs a scan per query. For",
-      "v1 volume (<10k records) scan is fine.",
-    ],
-    codex: [
-      "grep-ability matters: users will",
-      "pipe transcripts into jq. One file",
-      "per deliberation keeps blast radius",
-      "small. Recommend JSONL + index later.",
-    ],
-  };
+  const streams = GATHER_STREAMS;
   const states = ["working", "working", "working", "done"];
 
   const border = (l: string, m: string, r: string) =>

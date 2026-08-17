@@ -1,5 +1,5 @@
-$ krosval ask --observe "Should krosval store transcripts as JSONL files or in SQLite?"
-  observatory: tmux detected — 4 panes + status bar (presentation only; engine is headless)
+$ krosval ask "Should krosval store transcripts as JSONL files or in SQLite?"
+  observatory auto-on (tmux, consented at first run) — 4 panes + status bar · opt out: --no-observe (presentation only; engine is headless)
 
 ┌───────────────────────────────────────┬───────────────────────────────────────┐
 │ claude [working] ·····················│ co [working] ·························│

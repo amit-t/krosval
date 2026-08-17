@@ -28,5 +28,10 @@ Default council quorum proposed
   (wrappers co/cf registered but not seated — add with `krosval council edit quorum`)
 Accept? [Y/n]: y
 
+Observatory — tmux detected (also supported: cmux, herdr, iTerm2, Ghostty)
+  krosval can mirror each seat's live stream into panes while a council runs.
+Mirror automatically in supported terminals? [Y/n]: y
+  auto-on saved. Per-run opt-out: krosval ask --no-observe · flip later: krosval config observatory off
+
 Ready. Try:  krosval ask "your question"
 

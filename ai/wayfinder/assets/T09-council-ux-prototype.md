@@ -1,8 +1,8 @@
 # T09 — Council session CLI UX prototype
 
-Ticket: [T09 / #10](https://github.com/amit-t/krosval/issues/10) · Status: **awaiting Amit's reaction** · Prototype: [`T09-prototype/demo.ts`](T09-prototype/demo.ts)
+Ticket: [T09 / #10](https://github.com/amit-t/krosval/issues/10) · Status: **grill answered 2026-08-17, revised; Q3 (stage-header notes) pending** · Prototype: [`T09-prototype/demo.ts`](T09-prototype/demo.ts)
 
-Fake-data walkthrough of the full krosval terminal experience — no engine, no agents, every byte scripted. Purpose: fix vocabulary and information hierarchy ahead of T08 (protocol) and T12 (observatory).
+Fake-data walkthrough of the full krosval terminal experience — no engine, no agents, every byte scripted. Purpose: fix vocabulary and information hierarchy ahead of T12 (observatory) — T08 (protocol) resolved in parallel; this prototype matches its outcomes (ballots = rankings + scores, quorum configurable, chairman gathers too).
 
 ## Run it
 
@@ -15,24 +15,27 @@ bun demo.ts --fast --plain     # instant, no ANSI (what the captures below show)
 
 Animated mode adds per-seat spinners, in-place seat-table redraws, and token-streaming synthesis — run it in a real terminal; captures below flatten that.
 
-## UX proposals embodied (react via the grill)
+## UX decisions (grill `.grills/2026-08-11-1540-council-ux-deep.md`, answered 2026-08-17)
 
-Each is a proposal, not a decision — veto/adjust in [`.grills/`](../../../.grills/) grill `council-ux` or by reacting on the issue.
-
-1. **Progress idiom: live seat table per stage** — one row per seat (spinner/state, tokens, elapsed), redrawn in place. No progress bars — token count + elapsed is the honest signal (NFR-2).
-2. **Stage header `▶ n/4 <name>`** with a one-line mechanics note (who sees what, tools on/off) — teaches the pipeline while it runs.
-3. **Seat states**: `queued · working · done · timeout · failed` — borrows herdr's `working` vocabulary (T05).
-4. **Consensus card**: single box — confidence word+number, agreed (with N/M tallies), disputed (labels), peer scores, label→seat reveal, dropped seats. Anonymity is only lifted here, after review.
-5. **Failure texture**: timeout turns the seat row `✗`, one ⚠ banner names the budget and the quorum rule, later stages shrink label range (A–C), card records the dropped seat. No stack traces, no scrolling errors.
-6. **First-run**: three scan lines → agents table → wrappers table (with source `file:line` provenance) → one security warning for `--dangerously-skip-permissions` wrappers → single confirm → proposed default council. Wrappers registered but not auto-seated.
-7. **Observatory**: `--observe` flag; 2×2 panes titled `<seat> [state]`, krosval-owned status bar at bottom; absent integration falls back to the inline seat table. Presentation only.
-8. **`--json`**: NDJSON event stream (`deliberation.start`, `stage.start/end`, `seat.status/delta/result`, `ballot.received`, `synthesis.delta`, `consensus`, `deliberation.end`) — same vocabulary as transcript and observatory feed.
-9. **Trailer**: transcript path + replay command + elapsed + honest cost line (only claude reports cost — T04).
+1. **Progress idiom: live seat table per stage** — one row per seat (spinner/state, tokens, elapsed), redrawn in place. No progress bars.
+2. **Rolling preview per seat row** *(changed from hidden-by-default)* — working seats show a one-line dim snippet of their latest output; `-v` still interleaves full streams.
+3. **Stage header `▶ n/4 <name>` + mechanics note** — always vs first-runs-only **pending (Q3)**; prototype shows always.
+4. **Identity reveal in consensus card by default**; `--no-reveal` hides. Anonymity lifted only post-review.
+5. **Peer scores: rank order + scores** — matches T08's ballot format (ranking + per-criterion 1–10).
+6. **Confidence: word + number** (`HIGH 0.82`); computation per T08 (deterministic ballot math + synthesis agreement lists).
+7. **Synthesis streams live**; prettified render in `krosval show`.
+8. **Dropped seat: one card row + ⚠ banner at failure time**; partial output lives in the transcript.
+9. **First-run: bulk confirm** `[Y]es/[e]dit/[s]kip`; wrappers registered, not auto-seated (provider diversity).
+10. **Verbosity ladder: `-q` final-only · default seat tables · `-v` full streams.**
+11. **Observatory: first-run consent question, then auto-on in Tier-1 terminals** *(changed from opt-in flag)* — per-run `--no-observe`, config flip `krosval config observatory off`. Panes close at end; `--keep-panes` retains.
+12. **Deliberation id: `d-MMDD-xxxx`** date + short hash, prefix-matchable.
+13. **`--json`: NDJSON event stream** — same vocabulary as transcript + observatory feed (schema fixed by T08).
+14. **Trailer: transcript path + replay command + elapsed + honest cost line** (only claude reports cost — T04).
 
 ## Scene captures (`--fast --plain`)
 
 <details>
-<summary><strong>Scene 1 — first run: discovery interview</strong></summary>
+<summary><strong>Scene 1 — first run: discovery interview + observatory consent</strong></summary>
 
 ```text
 $ krosval
@@ -65,6 +68,11 @@ Default council quorum proposed
   (wrappers co/cf registered but not seated — add with `krosval council edit quorum`)
 Accept? [Y/n]: y
 
+Observatory — tmux detected (also supported: cmux, herdr, iTerm2, Ghostty)
+  krosval can mirror each seat's live stream into panes while a council runs.
+Mirror automatically in supported terminals? [Y/n]: y
+  auto-on saved. Per-run opt-out: krosval ask --no-observe · flip later: krosval config observatory off
+
 Ready. Try:  krosval ask "your question"
 
 ```
@@ -80,10 +88,10 @@ $ krosval ask "Should krosval store transcripts as JSONL files or in SQLite?"
 council quorum · mode consensus-seeker · 4 seats · chairman claude · deliberation d-0811-a3f2
 
 ▶ 1/4 gathering  4 seats, parallel, tools read-only
-  ~ claude   working             0s
-  ~ co       working             0s
-  ~ gemini   working             0s
-  ~ codex    working             0s
+  ~ claude   working             0s  Reading question + context…
+  ~ co       working             0s  Considering the audit-trail persona.
+  ~ gemini   working             0s  Comparing: SQLite gives indexed
+  ~ codex    working             0s  grep-ability matters: users will
   …
   ✓ claude   done    1.9k tok   41s
   ✓ co       done    1.2k tok   55s
@@ -91,10 +99,10 @@ council quorum · mode consensus-seeker · 4 seats · chairman claude · deliber
   ✓ codex    done    3.4k tok   62s
 
 ▶ 2/4 peer review  answers anonymized as Response A–D · reviewers see no names · tools off
-  ~ claude   working             0s
-  ~ co       working             0s
-  ~ gemini   working             0s
-  ~ codex    working             0s
+  ~ claude   working             0s  Scoring Response A: accuracy 9…
+  ~ co       working             0s  Response B strongest on audit needs…
+  ~ gemini   working             0s  Response A cites jq pipelines — apt…
+  ~ codex    working             0s  Comparing B and D on query power…
   …
   ✓ claude   done    1.9k tok   31s
   ✓ co       done    1.2k tok   31s
@@ -139,23 +147,23 @@ $ krosval ask "Should krosval store transcripts as JSONL files or in SQLite?"
 council quorum · mode consensus-seeker · 4 seats · chairman claude · deliberation d-0811-a3f2
 
 ▶ 1/4 gathering  4 seats, parallel, tools read-only
-  ~ claude   working             0s
-  ~ co       working             0s
-  ~ gemini   working             0s
-  ~ codex    working             0s
+  ~ claude   working             0s  Reading question + context…
+  ~ co       working             0s  Considering the audit-trail persona.
+  ~ gemini   working             0s  Comparing: SQLite gives indexed
+  ~ codex    working             0s  grep-ability matters: users will
   …
   ✓ claude   done    1.9k tok   41s
   ✓ co       done    1.2k tok   55s
   ✗ gemini   timeout 0.8k tok        budget 120s exhausted
   ✓ codex    done    3.4k tok   62s
 
-  ⚠ gemini hit the 120s stage budget — seat dropped for this deliberation.
-    quorum rule: 3 of 4 seats ≥ minimum 2 — council continues without it.
+  ⚠ gemini hit the 120s stage budget (recipe override) — seat dropped for this deliberation.
+    quorum: this council sets min_seats 2 — 3/4 satisfies it, continuing. (default: all seats required — abort)
 
 ▶ 2/4 peer review  answers anonymized as Response A–C · reviewers see no names · tools off
-  ~ claude   working             0s
-  ~ co       working             0s
-  ~ codex    working             0s
+  ~ claude   working             0s  Scoring Response A: accuracy 9…
+  ~ co       working             0s  Response B strongest on audit needs…
+  ~ codex    working             0s  Comparing B and D on query power…
   …
   ✓ claude   done    1.9k tok   31s
   ✓ co       done    1.2k tok   31s
@@ -192,11 +200,11 @@ elapsed 3m12s · est. cost $0.14 (claude seats only — others don't report cost
 </details>
 
 <details>
-<summary><strong>Scene 4 — observatory: faked tmux split</strong></summary>
+<summary><strong>Scene 4 — observatory: faked tmux split (auto-on)</strong></summary>
 
 ```text
-$ krosval ask --observe "Should krosval store transcripts as JSONL files or in SQLite?"
-  observatory: tmux detected — 4 panes + status bar (presentation only; engine is headless)
+$ krosval ask "Should krosval store transcripts as JSONL files or in SQLite?"
+  observatory auto-on (tmux, consented at first run) — 4 panes + status bar · opt out: --no-observe (presentation only; engine is headless)
 
 ┌───────────────────────────────────────┬───────────────────────────────────────┐
 │ claude [working] ·····················│ co [working] ·························│
