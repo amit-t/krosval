@@ -1,6 +1,6 @@
 # T09 — Council session CLI UX prototype
 
-Ticket: [T09 / #10](https://github.com/amit-t/krosval/issues/10) · Status: **grill answered 2026-08-17, revised; Q3 (stage-header notes) pending** · Prototype: [`T09-prototype/demo.ts`](T09-prototype/demo.ts)
+Ticket: [T09 / #10](https://github.com/amit-t/krosval/issues/10) · Status: **resolved 2026-08-17 — all 14 UX decisions settled** · Prototype: [`T09-prototype/demo.ts`](T09-prototype/demo.ts)
 
 Fake-data walkthrough of the full krosval terminal experience — no engine, no agents, every byte scripted. Purpose: fix vocabulary and information hierarchy ahead of T12 (observatory) — T08 (protocol) resolved in parallel; this prototype matches its outcomes (ballots = rankings + scores, quorum configurable, chairman gathers too).
 
@@ -19,7 +19,7 @@ Animated mode adds per-seat spinners, in-place seat-table redraws, and token-str
 
 1. **Progress idiom: live seat table per stage** — one row per seat (spinner/state, tokens, elapsed), redrawn in place. No progress bars.
 2. **Rolling preview per seat row** *(changed from hidden-by-default)* — working seats show a one-line dim snippet of their latest output; `-v` still interleaves full streams.
-3. **Stage header `▶ n/4 <name>` + mechanics note** — always vs first-runs-only **pending (Q3)**; prototype shows always.
+3. **Stage header `▶ n/4 <name>` + mechanics note, always shown** — one dim line per stage; the pipeline is the product, keep it legible.
 4. **Identity reveal in consensus card by default**; `--no-reveal` hides. Anonymity lifted only post-review.
 5. **Peer scores: rank order + scores** — matches T08's ballot format (ranking + per-criterion 1–10).
 6. **Confidence: word + number** (`HIGH 0.82`); computation per T08 (deterministic ballot math + synthesis agreement lists).
